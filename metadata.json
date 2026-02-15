@@ -1,0 +1,7 @@
+{
+  "name": "CrediYA",
+  "description": "Tu app de préstamos al instante. Rápido, fácil y sin papeleos.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
