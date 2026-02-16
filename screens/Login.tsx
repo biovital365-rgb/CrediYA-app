@@ -40,7 +40,7 @@ export const Login: React.FC = () => {
                         .upsert({
                             id: data.user.id,
                             full_name: fullName,
-                            phone: phone,
+                            phone_number: phone,
                             credit_limit: 2500,
                             current_level: 1
                         });

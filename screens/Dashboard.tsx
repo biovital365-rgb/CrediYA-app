@@ -53,7 +53,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onWithdraw, onNavigateRepa
             .insert([{
               id: user.id,
               full_name: metadata.full_name || user.email?.split('@')[0] || 'Emprendedor',
-              phone: metadata.phone || '',
+              phone_number: metadata.phone || metadata.phone_number || '',
               credit_limit: 2500,
               current_level: 1
             }])
@@ -121,7 +121,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onWithdraw, onNavigateRepa
             .insert([{
               id: user.id,
               full_name: metadata.full_name || user.email?.split('@')[0] || 'Emprendedor',
-              phone: metadata.phone || '',
+              phone_number: metadata.phone || metadata.phone_number || '',
               credit_limit: 2500,
               current_level: 1
             }])
