@@ -37,13 +37,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ onWithdraw, onNavigateRepa
       if (user) {
         setCurrentUser(user);
         // 1. Fetch Profile
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
 
-        if (profileData) setProfile(profileData);
+        if (profileData) {
+          setProfile(profileData);
+        } else if (profileError && profileError.code === 'PGRST116') {
+          // Profile not found, create one
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([{
+              id: user.id,
+              full_name: user.email?.split('@')[0] || 'Emprendedor',
+              credit_limit: 2500,
+              current_level: 1
+            }])
+            .select()
+            .single();
+
+          if (newProfile) setProfile(newProfile);
+          if (createError) console.error("Error creating profile:", createError);
+        }
 
         // 2. Fetch Active Loan
         const { data: loanData } = await supabase
