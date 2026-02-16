@@ -101,6 +101,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ onWithdraw, onNavigateRepa
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No session found");
 
+      // Robust Profile Check before creating loan
+      let currentProfile = profile;
+      if (!currentProfile) {
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (existingProfile) {
+          currentProfile = existingProfile;
+          setProfile(existingProfile);
+        } else {
+          // One last attempt to create it
+          const metadata = user.user_metadata || {};
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([{
+              id: user.id,
+              full_name: metadata.full_name || user.email?.split('@')[0] || 'Emprendedor',
+              phone: metadata.phone || '',
+              credit_limit: 2500,
+              current_level: 1
+            }])
+            .select()
+            .single();
+
+          if (newProfile) {
+            currentProfile = newProfile;
+            setProfile(newProfile);
+          } else {
+            console.error("Profile creation failed:", createError);
+            throw new Error("No se pudo inicializar tu perfil. Por favor, asegúrate de haber configurado las políticas de la tabla 'profiles' en Supabase.");
+          }
+        }
+      }
+
       const { error } = await supabase
         .from('loans')
         .insert([{
