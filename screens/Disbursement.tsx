@@ -78,14 +78,14 @@ export const Disbursement: React.FC<DisbursementProps> = ({ onFinish }) => {
                 <div className="space-y-4 px-2">
                     <Card
                         onClick={() => setMethod('qr')}
-                        className="cursor-pointer bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-white/60 dark:border-white/5 hover:border-cy-success/50 hover:bg-white dark:hover:bg-slate-900 shadow-premium transition-all group p-7 rounded-[36px]"
+                        className="cursor-pointer bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-white/60 dark:border-white/5 hover:border-cy-success/50 hover:bg-white dark:hover:bg-slate-900 shadow-premium transition-all active:scale-[0.98] transform group p-7 rounded-[36px]"
                     >
                         <div className="absolute top-0 right-0 bg-cy-success text-white text-[9px] font-black px-4 py-2 rounded-bl-[20px] tracking-widest uppercase shadow-lg">
                             Más Rápido
                         </div>
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 bg-cy-success/10 rounded-2xl flex items-center justify-center text-cy-success group-hover:bg-cy-success group-hover:text-white transition-all transform group-active:scale-95 duration-300">
-                                <span className="material-symbols-outlined text-[32px]">qr_code_Scanner</span>
+                                <span className="material-symbols-outlined text-[32px]">qr_code_scanner</span>
                             </div>
                             <div>
                                 <h3 className="font-black text-slate-800 dark:text-white uppercase tracking-widest text-[13px] mb-1">Cobro por QR</h3>
@@ -96,7 +96,7 @@ export const Disbursement: React.FC<DisbursementProps> = ({ onFinish }) => {
 
                     <Card
                         onClick={() => setMethod('bank')}
-                        className="cursor-pointer bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-white/60 dark:border-white/5 hover:border-cy-primary/50 hover:bg-white dark:hover:bg-slate-900 shadow-premium transition-all group p-7 rounded-[36px]"
+                        className="cursor-pointer bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-white/60 dark:border-white/5 hover:border-cy-primary/50 hover:bg-white dark:hover:bg-slate-900 shadow-premium transition-all active:scale-[0.98] transform group p-7 rounded-[36px]"
                     >
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 bg-cy-primary/10 rounded-2xl flex items-center justify-center text-cy-primary group-hover:bg-cy-primary group-hover:text-white transition-all transform group-active:scale-95 duration-300">
