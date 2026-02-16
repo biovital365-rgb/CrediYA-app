@@ -46,12 +46,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onWithdraw, onNavigateRepa
         if (profileData) {
           setProfile(profileData);
         } else if (profileError && profileError.code === 'PGRST116') {
-          // Profile not found, create one
+          // Profile not found, create one - Use metadata if available
+          const metadata = user.user_metadata || {};
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert([{
               id: user.id,
-              full_name: user.email?.split('@')[0] || 'Emprendedor',
+              full_name: metadata.full_name || user.email?.split('@')[0] || 'Emprendedor',
+              phone: metadata.phone || '',
               credit_limit: 2500,
               current_level: 1
             }])

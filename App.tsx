@@ -32,16 +32,25 @@ const App: React.FC = () => {
   }, [isDark]);
 
   useEffect(() => {
-    // Safety timeout for mobile devices
+    // Safety timeout for mobile devices - reduce to 3 seconds for faster fallback
     const timeout = setTimeout(() => {
+      console.warn("Safety timeout: forcing loading to false");
       setLoading(false);
-    }, 5000);
+    }, 3000);
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-      clearTimeout(timeout);
-    });
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+      } catch (e) {
+        console.error("Auth error:", e);
+      } finally {
+        setLoading(false);
+        clearTimeout(timeout);
+      }
+    };
+
+    initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
