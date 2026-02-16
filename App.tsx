@@ -32,16 +32,26 @@ const App: React.FC = () => {
   }, [isDark]);
 
   useEffect(() => {
+    // Safety timeout for mobile devices
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      clearTimeout(timeout);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const toggleTheme = () => setIsDark(!isDark);
@@ -55,8 +65,12 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-screen bg-white flex items-center justify-center">
-        <div className="w-12 h-12 border-[3px] border-cy-primary/20 border-t-cy-primary rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center min-h-[100dvh] bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+        <div className="w-16 h-16 border-[4px] border-cy-primary/10 border-t-cy-primary rounded-full animate-spin shadow-glow mb-6"></div>
+        <div className="space-y-2 text-center">
+          <h2 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">Credi<span className="text-cy-primary">YA</span></h2>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] animate-pulse">Iniciando sistema...</p>
+        </div>
       </div>
     );
   }
