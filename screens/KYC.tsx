@@ -25,8 +25,8 @@ export const KYC: React.FC<KYCProps> = ({ onComplete, onBack }) => {
       if (!user) throw new Error('No user found');
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${step === 1 ? 'id_front' : 'selfie'}_${Date.now()}.${fileExt}`;
-      const filePath = `kyc-docs/${fileName}`;
+      const fileName = `${step === 1 ? 'id_front' : 'selfie'}_${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('kyc')
