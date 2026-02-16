@@ -21,7 +21,6 @@ export const Repayment: React.FC<RepaymentProps> = ({ onBack }) => {
     const fetchLoanAndPayments = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-            // 1. Get active or disbursed loan
             const { data: loan } = await supabase
                 .from('loans')
                 .select('*')
@@ -34,7 +33,6 @@ export const Repayment: React.FC<RepaymentProps> = ({ onBack }) => {
             if (loan) {
                 setActiveLoan(loan);
 
-                // 2. Get existing payments
                 const { data: payments } = await supabase
                     .from('payments')
                     .select('*')
@@ -44,7 +42,6 @@ export const Repayment: React.FC<RepaymentProps> = ({ onBack }) => {
                 if (payments && payments.length > 0) {
                     setInstallments(payments);
                 } else {
-                    // 3. Generate installments if none exist (First time view)
                     const newPayments = [];
                     for (let i = 1; i <= loan.duration_weeks; i++) {
                         const dueDate = new Date();
@@ -78,120 +75,123 @@ export const Repayment: React.FC<RepaymentProps> = ({ onBack }) => {
         if (error) {
             alert('Error al procesar pago: ' + error.message);
         } else {
-            // Refresh list
             await fetchLoanAndPayments();
-            alert('¡Pago registrado con éxito!');
         }
         setIsPaying(false);
     };
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-[#F8F9FA]">
-                <div className="w-12 h-12 border-4 border-cy-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="flex items-center justify-center min-h-screen bg-white">
+                <div className="w-12 h-12 border-[3px] border-cy-primary/20 border-t-cy-primary rounded-full animate-spin"></div>
             </div>
         );
     }
 
-    if (!activeLoan) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-[#F8F9FA]">
-                <span className="material-symbols-outlined text-6xl text-gray-300 mb-4">account_balance_wallet</span>
-                <h2 className="text-xl font-bold text-cy-dark">No tienes créditos activos</h2>
-                <p className="text-gray-500 mb-6">Solicita uno desde el simulador de inicio.</p>
-                <Button onClick={onBack}>Volver al Inicio</Button>
-            </div>
-        );
-    }
+    if (!activeLoan) return null;
 
     const nextPayment = installments.find(p => p.status === 'PENDING');
 
     return (
-        <div className="flex flex-col h-full w-full max-w-md mx-auto bg-[#F8F9FA]">
+        <div className="flex flex-col h-full w-full max-w-md mx-auto mesh-gradient overflow-hidden">
 
-            {/* Header */}
-            <div className="bg-cy-dark p-6 pb-12 rounded-b-[40px] text-white relative shadow-lg">
-                <div className="flex items-center gap-4 mb-6">
-                    <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md hover:bg-white/20 transition-colors">
-                        <span className="material-symbols-outlined">arrow_back</span>
+            {/* Header: Dark Premium */}
+            <header className="bg-cy-dark p-6 pt-8 pb-14 rounded-b-[48px] text-white relative shadow-2xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-cy-primary/20 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
+
+                <div className="flex items-center gap-4 mb-8 relative z-10">
+                    <button onClick={onBack} className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-xl border border-white/10 hover:bg-white/20 active:scale-95 transition-all">
+                        <span className="material-symbols-outlined text-white">arrow_back</span>
                     </button>
-                    <h1 className="text-2xl font-bold">Pagar Cuota</h1>
+                    <h1 className="text-xl font-black uppercase tracking-widest text-white/90">Mi Plan de Pagos</h1>
                 </div>
 
-                <div className="flex flex-col items-center text-center">
-                    <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">
-                        {nextPayment ? 'Monto de Cuota' : 'Totalmente Pagado'}
-                    </p>
-                    <h2 className="text-5xl font-extrabold mb-2 tracking-tight">
-                        Bs. {nextPayment ? nextPayment.amount : '0'}
-                    </h2>
+                <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="bg-cy-primary/20 text-cy-teal text-[10px] font-black px-4 py-1.5 rounded-full border border-cy-teal/20 mb-3 tracking-widest flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-cy-teal rounded-full animate-pulse shadow-glow"></span>
+                        CUOTA PRÓXIMA
+                    </div>
+                    <div className="flex items-baseline gap-1 mb-2">
+                        <span className="text-2xl text-white/50 font-black tracking-tight">Bs.</span>
+                        <h2 className="text-6xl font-black tracking-tighter tabular-nums">
+                            {nextPayment ? nextPayment.amount : '0'}
+                        </h2>
+                    </div>
                     {nextPayment && (
-                        <div className="bg-cy-accent/20 border border-cy-accent/50 px-3 py-1 rounded-full flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-cy-accent animate-pulse"></span>
-                            <span className="text-xs font-bold text-cy-accent capitalize">
-                                Vence: {new Date(nextPayment.due_date).toLocaleDateString('es-BO', { day: 'numeric', month: 'short' })}
+                        <p className="text-white/40 text-xs font-bold uppercase tracking-widest">
+                            Vence: <span className="text-white">
+                                {new Date(nextPayment.due_date).toLocaleDateString('es-BO', { day: 'numeric', month: 'short' })}
                             </span>
-                        </div>
+                        </p>
                     )}
                 </div>
-            </div>
+            </header>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar -mt-8 px-5 pb-5">
+            <div className="flex-1 overflow-y-auto no-scrollbar -mt-8 px-6 pb-24 relative z-20">
 
-                {/* Payment Method: QR Simple */}
+                {/* Simulated QR: WOW Card */}
                 {nextPayment && (
-                    <Card className="bg-white shadow-xl mb-6 text-center pt-8 pb-8">
-                        <h3 className="text-cy-dark font-bold text-lg mb-4">Escanea para Pagar</h3>
+                    <Card className="bg-white/80 backdrop-blur-xl border-none shadow-premium mb-8 text-center py-10 px-6">
+                        <div className="flex flex-col items-center">
+                            <h3 className="text-cy-dark font-black text-xl mb-6 tracking-tight">Paga rápido con QR</h3>
 
-                        <div
-                            onClick={() => handleSimulatePayment(nextPayment.id)}
-                            className="w-64 h-64 mx-auto bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl p-4 flex items-center justify-center relative mb-4 cursor-pointer hover:border-cy-primary transition-all group"
-                        >
-                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=PAGO_CUOTA_${nextPayment.id}`} alt="QR Pago" className="w-full h-full opacity-90 group-hover:scale-105 transition-transform" />
-                            {isPaying && (
-                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-3xl backdrop-blur-sm">
-                                    <div className="w-10 h-10 border-4 border-cy-primary border-t-transparent rounded-full animate-spin"></div>
-                                </div>
-                            )}
-                            <div className="absolute -bottom-3 bg-white px-3 py-1 rounded-full shadow border border-gray-100 flex items-center gap-1">
-                                <span className="text-[10px] font-bold text-gray-600">Simular escaneo QR</span>
+                            <div
+                                onClick={() => handleSimulatePayment(nextPayment.id)}
+                                className="w-64 h-64 bg-white border-none rounded-[40px] p-6 flex items-center justify-center relative mb-6 cursor-pointer shadow-premium hover:shadow-neon group transition-all"
+                            >
+                                <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=PAGO_CUOTA_${nextPayment.id}`}
+                                    alt="QR Pago"
+                                    className="w-full h-full opacity-100 group-hover:scale-105 transition-transform"
+                                />
+                                {isPaying && (
+                                    <div className="absolute inset-0 bg-white/90 flex items-center justify-center rounded-[40px] backdrop-blur-md">
+                                        <div className="w-12 h-12 border-[3px] border-cy-primary/20 border-t-cy-primary rounded-full animate-spin"></div>
+                                    </div>
+                                )}
                             </div>
-                        </div>
 
-                        <p className="text-xs text-gray-500 max-w-xs mx-auto">
-                            (Simulación: Haz clic en el QR para marcar como pagado)
-                        </p>
+                            <p className="text-[11px] text-gray-400 font-bold max-w-[200px] leading-relaxed uppercase tracking-tight">
+                                Toca el código QR para <br /><span className="text-cy-primary font-black">Simular el Pago Instantáneo</span>
+                            </p>
+                        </div>
                     </Card>
                 )}
 
-                {/* Schedule */}
-                <div className="mb-6">
-                    <h3 className="font-bold text-cy-dark mb-4 px-2 text-lg">Tu Plan de Pagos</h3>
-                    <div className="space-y-2">
+                {/* Detailed Installments */}
+                <div className="mb-8">
+                    <h3 className="font-black text-cy-dark mb-5 text-[12px] uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-cy-dark rounded-full"></span>
+                        Estado de Cuotas
+                    </h3>
+                    <div className="space-y-3">
                         {installments.map((installment, idx) => (
-                            <div key={installment.id || idx} className={`flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border ${installment.status === 'PAID' ? 'opacity-50 grayscale bg-gray-50' : 'border-transparent'}`}>
+                            <div
+                                key={installment.id || idx}
+                                className={`flex items-center justify-between p-4 bg-white rounded-3xl border border-white shadow-premium transition-all ${installment.status === 'PAID' ? 'opacity-40 grayscale bg-gray-50' : ''}`}
+                            >
                                 <div className="flex items-center gap-4">
-                                    <div className="flex flex-col items-center justify-center w-12 h-12 bg-gray-50 rounded-xl border border-gray-100 text-center">
-                                        <span className="text-[9px] text-gray-400 font-bold uppercase">SEM</span>
-                                        <span className="text-lg font-bold text-cy-dark">{idx + 1}</span>
+                                    <div className={`flex flex-col items-center justify-center w-12 h-12 rounded-2xl text-center shadow-sm ${installment.status === 'PAID' ? 'bg-gray-200' : 'bg-cy-primary text-white shadow-glow'}`}>
+                                        <span className="text-[8px] font-black uppercase opacity-70">Wk</span>
+                                        <span className="text-lg font-black leading-none">{idx + 1}</span>
                                     </div>
                                     <div>
-                                        <p className="text-xs font-bold text-gray-400 uppercase">
+                                        <p className="text-[10px] font-black text-cy-dark uppercase tracking-tighter">
                                             {new Date(installment.due_date).toLocaleDateString('es-BO', { weekday: 'short', day: 'numeric', month: 'short' })}
                                         </p>
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${installment.status === 'PAID' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
+                                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${installment.status === 'PAID' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
                                             {installment.status === 'PAID' ? 'PAGADO' : 'PENDIENTE'}
                                         </span>
                                     </div>
                                 </div>
-                                <span className="font-extrabold text-cy-dark text-lg">{TEXTS.CURRENCY} {installment.amount}</span>
+                                <span className="font-black text-cy-dark text-lg tabular-nums">Bs. {installment.amount}</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <Button variant="secondary" fullWidth icon="share" className="bg-gray-100 text-gray-600 hover:bg-gray-200">
-                    Descargar Resumen
+                <Button variant="secondary" fullWidth icon="download" className="bg-cy-dark text-white rounded-3xl h-14">
+                    Resumen de Operación
                 </Button>
 
             </div>

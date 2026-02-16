@@ -38,8 +38,8 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-screen bg-[#F8F9FA] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-cy-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-full h-screen bg-white flex items-center justify-center">
+        <div className="w-12 h-12 border-[3px] border-cy-primary/20 border-t-cy-primary rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -49,7 +49,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-screen bg-[#F8F9FA] overflow-hidden font-sans">
+    <div className="w-full h-screen bg-white mesh-gradient overflow-hidden font-sans">
       {currentScreen === AppScreen.DASHBOARD && (
         <Dashboard
           onWithdraw={goPermissions}
